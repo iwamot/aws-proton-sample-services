@@ -9,8 +9,8 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: web-app-iwamot-aws-proton-sample-services
-  PROTON_SERVICE: web-app
+  ECR_REPOSITORY: webapp-iwamot-aws-proton-sample-services
+  PROTON_SERVICE: webapp
 
 permissions:
   contents: read
@@ -30,7 +30,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         aws-region: us-east-1
-        role-to-assume: arn:aws:iam::290996150196:role/web-app-github-action-iwamot-aws-proton-sample-services
+        role-to-assume: arn:aws:iam::290996150196:role/webapp-github-action-iwamot-aws-proton-sample-services
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -54,15 +54,15 @@ jobs:
         wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod +x /usr/local/bin/yq
         yq ".instances[0].spec.image = \"${{ steps.build.outputs.image }}\"" spec.yml > ${HOME}/service.yml
 
-    - name: Deploy container image to dev using Proton pipeline
+    - name: Deploy container image to development using Proton pipeline
       run: |
         aws proton update-service-instance \
           --service-name ${PROTON_SERVICE} \
-          --name dev \
+          --name development \
           --deployment-type CURRENT_VERSION \
           --spec file://${HOME}/service.yml
 
         aws proton wait service-instance-deployed \
           --service-name ${PROTON_SERVICE} \
-          --name dev
+          --name development
 
